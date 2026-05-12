@@ -1,4 +1,4 @@
-##Amazon Prime Content Analysis
+# 📊 Amazon Prime Content Analysis
 **Trends, Genres, and Audience Insights**
 
 > Mini Course Project · RevoU Data Analytics Program
