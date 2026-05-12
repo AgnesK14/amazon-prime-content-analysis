@@ -1,5 +1,5 @@
-Amazon Prime Content Analysis
-Trends, Genres, and Audience Insights**
+##Amazon Prime Content Analysis
+**Trends, Genres, and Audience Insights**
 
 > Mini Course Project · RevoU Data Analytics Program
 
@@ -242,7 +242,6 @@ Relasi antar tabel:
 
 ## Dashboard Preview
 
-![Dashboard](assets/dashboard_preview.png)
 <img width="1030" height="592" alt="image" src="https://github.com/user-attachments/assets/1e5f9b81-1839-4c9d-bc9a-1dce78c1f112" />
 
 ---
