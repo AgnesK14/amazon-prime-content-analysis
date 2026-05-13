@@ -29,13 +29,10 @@ amazon-prime-content-analysis/
 │   │
 │   └── processed/
 │       ├── amazon_prime_cleaned.csv
-│       └── content_genre.csv
-│
-├── excel/
-│   └── amazon_prime_content_analysis.xlsx
 │
 ├── assets/
 │   ├── dashboard_preview.png
+|   ├── Data Model.png
 │   ├── data_model.png
 │   └── power_query_workflow.png
 │
