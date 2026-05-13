@@ -11,21 +11,26 @@
 | **Dataset**     | Amazon Prime Video Catalog                                                                                    |
 | **Jumlah Data** | 9.687 rows, 9 columns                                                                                         |
 | **Tools**       | Microsoft Excel (Power Query, Pivot Table, Chart)                                                             |
-| **Tujuan**      | Mengidentifikasi tren konten, distribusi genre, pola rating audiens, dan karakteristik durasi Movie & TV Show |
+| **Tujuan**      | Mengidentifikasi tren konten, distribusi genre, pola rating audiens, dan karakteristik durasi Movie           |
 
 ---
 
 ## 📁 Struktur File
 
 ```bash
-📦 amazon-prime-content-analysis
- ┣ 📄 amazon_prime_titles.csv          # Dataset mentah
- ┣ 📄 amazon_prime_cleaned.xlsx        # Dataset setelah cleaning (Power Query)
- ┣ 📄 content_genre.xlsx               # Tabel relasional genre
- ┣ 📊 dashboard_preview.png            # Dashboard utama
- ┣ 📊 data_model.png                   # Relasi antar tabel
- ┣ 📊 power_query_workflow.png         # Workflow transformasi data
- ┗ 📄 README.md
+📦 beverage-distribution-performance-dashboard
+│
+├── README.md
+│
+├── data/
+│   ├── amazon_prime_titles.csv          # Dataset mentah
+│   └── amazon_prime_cleaned.xlsx        # Dataset setelah cleaning (Power Query)
+│   └── content_genre.xlsx               # Tabel relasional genre
+├── assets/
+│   ├── dashdashboard_preview.png        # Dashboard utama
+│   └── data_model.png                   # Relasi antar tabel
+│   └── power_query_workflow.png         # Workflow transformasi data
+
 ```
 
 ---
