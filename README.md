@@ -1,254 +1,427 @@
 # 📊 Amazon Prime Content Analysis
-**Trends, Genres, and Audience Insights**
 
-> Mini Course Project · RevoU Data Analytics Program
-
----
-
-## 📌 Project Overview
-
-Proyek ini menganalisis **9.500+ konten Amazon Prime Video** untuk mengidentifikasi:
-- Tren penambahan konten dari dekade ke dekade
-- Distribusi genre dan tipe konten (Movie vs TV Show)
-- Karakteristik audiens berdasarkan kategori rating
-- Pola durasi film dan jumlah season TV Show
-
-**Tools:** Microsoft Excel (Power Query, Pivot Table, Chart)  
-**Dataset:** 9.687 rows · 9 columns · Amazon Prime Video Catalog
+> Analisis tren konten, distribusi genre, dan karakteristik audiens pada katalog Amazon Prime Video.
 
 ---
 
-## 📁 File Structure
+## 🗂️ Project Overview
 
-```
-amazon-prime-content-analysis/
-│
-├── data/
-│   ├── raw/
-│   │   └── amazon_prime_titles.csv
-│   │
-│   └── processed/
-│       ├── amazon_prime_cleaned.csv
-│
-├── assets/
-│   ├── dashboard_preview.png
-|   ├── Data Model.png
-│   ├── data_model.png
-│   └── power_query_workflow.png
-│
-└── README.md
+| Item            | Detail                                                                                                        |
+| --------------- | ------------------------------------------------------------------------------------------------------------- |
+| **Dataset**     | Amazon Prime Video Catalog                                                                                    |
+| **Jumlah Data** | 9.687 rows, 9 columns                                                                                         |
+| **Tools**       | Microsoft Excel (Power Query, Pivot Table, Chart)                                                             |
+| **Tujuan**      | Mengidentifikasi tren konten, distribusi genre, pola rating audiens, dan karakteristik durasi Movie & TV Show |
+
+---
+
+## 📁 Struktur File
+
+```bash
+📦 amazon-prime-content-analysis
+ ┣ 📄 amazon_prime_titles.csv          # Dataset mentah
+ ┣ 📄 amazon_prime_cleaned.xlsx        # Dataset setelah cleaning (Power Query)
+ ┣ 📄 content_genre.xlsx               # Tabel relasional genre
+ ┣ 📊 dashboard_preview.png            # Dashboard utama
+ ┣ 📊 data_model.png                   # Relasi antar tabel
+ ┣ 📊 power_query_workflow.png         # Workflow transformasi data
+ ┗ 📄 README.md
 ```
 
 ---
 
-## 🗂️ Dataset Overview
+## 🔍 Dataset Info
 
-|Kolom	     |  Deskripsi          |
-|------------|---------------------|
-|show_id	   |  ID unik konten     |
-|type	       |  Movie / TV Show    |
-|title	     |  Judul konten       |
-|country	   |  Negara produksi    |
-|release_year|	Tahun rilis        |
-|rating	     |  Rating konten      |
-|duration	   |  Durasi (min/Season)|
-|listed_in	 |  Genre              |
-|description |  Sinopsis           |
+```python
+RangeIndex: 9.687 entries
+Columns: 9
 
----
-
-## 🔍 Data Quality Issues
-
-Sebelum transformasi, ditemukan beberapa masalah kualitas data:
-
-| Issue                        | Detail                                                   |
-| ---------------------------- | -------------------------------------------------------- |
-| Missing values tinggi        | `country` memiliki 89% nilai kosong                      |
-| Label rating tidak konsisten | Terdapat beberapa variasi label untuk kategori yang sama |
-| Mixed data                   | `duration` mencampur nilai menit dan season              |
-| Multi-value column           | `listed_in` berisi lebih dari satu genre                 |
-| Whitespace                   | Spasi tersembunyi pada beberapa kolom                    |
-| Outlier                      | Durasi ekstrem dan tidak realistis                       |
+#   Column         Non-Null    Dtype
+0   show_id        9687        object
+1   type           9687        object
+2   title          9687        object
+3   country        1060        object   ← 89% missing value
+4   release_year   9687        int64
+5   rating         9687        object   ← label tidak konsisten
+6   duration       9687        object   ← mixed value
+7   listed_in      9687        object   ← multi-value column
+8   description    9687        object
+```
 
 ---
 
-## 🔧 Data Cleaning & Transformation (Power Query)
+## 🛠️ Data Cleaning Process (Excel – Power Query)
 
-### 1. Remove Irrelevant Columns
-Kolom `country` (89% missing) dan `description` dihapus karena tidak relevan untuk analisis.
+### 1. Promoted Headers
 
-Power Query Feature:
-`Home - Remove Columns`
+Baris pertama dataset dijadikan nama kolom menggunakan fitur:
 
-### 2. Filter Tipe Konten
-Hanya mempertahankan baris dengan type = "Movie" atau "TV Show".
-Menghapus nilai kosong atau kategori tidak valid.
+**Home → Use First Row as Headers**
 
-Power Query Feature:
-`Column Filter`
+---
 
-### 3. Standarisasi Label Rating
-Ditemukan 10+ variasi label untuk nilai yang sama. Semua distandarisasi ke format konsisten.
+### 2. Removed Irrelevant Columns
 
-| Before | After |
-|----------|-----|
-| blank    | NR  |
-| 16       | 16+ |
-| AGES_16_ | 16+ |
-| AGES_18_ | 18+ |
-| NOT_RATE | NR  |
-| UNRATED  | NR  |
+Kolom `country` dan `description` dihapus menggunakan:
 
-Power Query Feature:
-`Transform → Replace Values`
+**Home → Remove Columns**
 
-### 4. Kategorisasi Usia Audiens
-Membuat kolom baru `age_category`:
+Tujuan:
 
-| Kategori | Rating yang Termasuk              |
-|----------|-----------------------------------|
-| Kids     | TV-Y, TV-Y7, G, ALL, 7+           |
+* `country` memiliki ~89% missing value
+* `description` tidak digunakan dalam analisis dashboard
+
+---
+
+### 3. Filtered Invalid Content Type
+
+Hanya mempertahankan kategori:
+
+* `Movie`
+* `TV Show`
+
+Langkah:
+
+**Dropdown Filter pada kolom type**
+
+Tujuan:
+
+Menghapus record kosong atau kategori yang tidak relevan.
+
+---
+
+### 4. Standardized Rating Labels
+
+Beberapa label rating tidak konsisten sehingga dilakukan standarisasi menggunakan:
+
+**Transform → Replace Values**
+
+Perubahan label:
+
+| Sebelum   | Sesudah |
+| --------- | ------- |
+| blank     | NR      |
+| 16        | 16+     |
+| ALL_AGES  | ALL     |
+| AGES_16+_ | 16+     |
+| 16++      | 16+     |
+| AGES_18_  | 18+     |
+| NOT_RATE  | NR      |
+| UNRATED   | NR      |
+
+Tujuan:
+
+Memastikan konsistensi kategori rating untuk analisis audiens.
+
+---
+
+### 5. Added AGE_CATEGORY
+
+Kolom baru dibuat untuk mengelompokkan rating berdasarkan kategori usia audiens.
+
+Langkah:
+
+**Add Column → Conditional Column**
+
+Kategori:
+
+| Kategori | Rating                            |
+| -------- | --------------------------------- |
+| Kids     | TV-Y, TV-Y7, G, ALL, 7+, TV-G     |
 | Teen     | TV-PG, PG, PG-13, TV-14, 13+, 16+ |
 | Adult    | R, NC-17, 18+, TV-MA              |
 | Unknown  | NR, TV-NR                         |
 
-Power Query Feature:
-`Add Column → Conditional Column`
+Tujuan:
 
-### 5. Transformasi Durasi
-Kolom `duration` awalnya berisi dua jenis informasi berbeda dalam satu kolom, yaitu:
-durasi film dalam menit
-jumlah season TV Show
+Mempermudah segmentasi konten berdasarkan target audiens.
 
-Kolom tersebut terlebih dahulu dipisahkan berdasarkan spasi menggunakan delimiter " " sehingga menghasilkan dua kolom baru:
+---
+
+### 6. Split Duration Column
+
+Kolom `duration` dipisahkan menjadi:
+
+* `duration_value`
+* `duration_unit`
+
+Langkah:
+
+**Transform → Split Column → By Delimiter**
 
 Contoh:
-|Sebelum	|  Sesudah      |
-|---------|---------------|
-|113 min	| min           |
-|1 Season	| Season        | 
 
-Power Query Feature:
-`Transform → Split Column → By Delimiter`
+| Sebelum   | duration_value | duration_unit |
+| --------- | -------------- | ------------- |
+| 113 min   | 113            | min           |
+| 2 Seasons | 2              | Seasons       |
 
-Setelah proses split, dilakukan standarisasi unit:
-|Sebelum | Sesudah |
-|--------|---------|
-| min	   | Minute  |
-| Seasons|	Season |
+---
 
-Power Query Feature:
-`Transform → Replace Values`
+### 7. Standardized Duration Unit
 
-### 6. Tambah Kolom `Movie_Duration_Mins` & `TV_Season_Count`
-Memisahkan metrik durasi berdasarkan tipe konten.
+Nilai unit durasi distandarisasi menggunakan:
 
-|type	   |duration_value	| duration_unit	|TV_Season_Count |
-|--------|----------------|---------------|----------------|
-|Movie	 | 113	          | Minute	      | null           | 
-|TV Show |	2	            | Season	      | 2              |
+**Transform → Replace Values**
 
-Power Query Feature:
-`Add Column → Conditional Column`
+Perubahan:
 
+| Sebelum | Sesudah |
+| ------- | ------- |
+| Seasons | Season  |
+| min     | Minute  |
 
-### 7. Hapus Anomali Durasi
-Record dengan durasi tidak realistis dihapus:
-- Terlalu pendek: 1–10 menit
-- Ekstrem: 479, 480, 481, 485, 540, 541, 550, 601 menit
-- Durasi 0 dihapus
+Tujuan:
 
-Power Query Feature:
-`Number Filters`
+Menghindari inkonsistensi label unit durasi.
 
-### 8. Trim Whitespace
-Menghindari duplikasi tersembunyi akibat spasi pada kolom `listed_in`.
+---
 
-Power Query Feature:
-`Transform → Format → Trim`
+### 8. Added MOVIE_DURATION_MINS
 
-### 9. Hapus Duplikasi
-Duplikasi dihapus berdasarkan `show_id` sebagai unique identifier.
+Kolom baru dibuat untuk menyimpan durasi khusus Movie.
 
-### 10. Tambah Kolom `Decade`
-Untuk analisis tren jangka panjang berdasarkan dekade rilis.
-Formula: Integer divide by 10 → multiply by 10 → tambah suffix "s"
+Langkah:
+
+**Add Column → Conditional Column**
+
+Logic:
+
+```python
+if duration_unit = "Minute"
+then duration_value
+else null
 ```
-Duplicate release_year -> Integer divide -> Multiply -> Add suffix -> Rename
+
+---
+
+### 9. Added TV_SEASON_COUNT
+
+Kolom baru dibuat untuk menyimpan jumlah season khusus TV Show.
+
+Langkah:
+
+**Add Column → Conditional Column**
+
+Logic:
+
+```python
+if duration_unit = "Season"
+then duration_value
+else null
 ```
+
+---
+
+### 10. Changed Data Type
+
+Kolom numerik diubah ke tipe integer menggunakan:
+
+**Transform → Data Type**
+
+Kolom:
+
+* `duration_value`
+* `Movie_Duration_Mins`
+* `TV_Season_Count`
+
+---
+
+### 11. Trimmed Text – listed_in
+
+Spasi tersembunyi pada kolom `listed_in` dihapus menggunakan:
+
+**Transform → Format → Trim**
+
+Tujuan:
+
+Menghindari duplikasi genre akibat whitespace.
+
+---
+
+### 12. Filtered Invalid Duration
+
+Record dengan:
+
+```python
+duration_value = 0
 ```
+
+dihapus menggunakan:
+
+**Number Filters**
+
+Tujuan:
+
+Menghapus durasi tidak valid.
+
+---
+
+### 13. Filtered Duration Outliers
+
+Durasi tidak realistis dihapus dari analisis.
+
+Durasi yang dihapus:
+
+```python
+1–10 minutes
+479, 480, 481, 485,
+540, 541, 550, 601 minutes
+```
+
+Tujuan:
+
+Mengurangi noise dan outlier ekstrem pada analisis durasi film.
+
+---
+
+### 14. Added Decade
+
+Kolom baru dibuat berdasarkan `release_year` untuk analisis tren per dekade.
+
+Langkah:
+
+```python
+Duplicate release_year
+→ Integer Divide by 10
+→ Multiply by 10
+→ Add suffix "s"
+→ Rename Column
+```
+
+Contoh:
+
+```python
 2018 → 2010s
 1994 → 1990s
 ```
 
+Tujuan:
+
+Mempermudah visualisasi tren pertumbuhan konten jangka panjang.
+
+---
+
 ## 🗃️ Data Modeling — Genre Normalization
-Karena satu konten bisa memiliki beberapa genre sekaligus, dibuat tabel relasional terpisah.
 
-| show_id | listed_in (original)  |
-|---------|-----------------------|
-| s1      | Drama, Comedy, Romance|
+Karena satu konten dapat memiliki lebih dari satu genre, dibuat tabel relasional terpisah untuk normalisasi genre.
 
-Setelah normalisasi (tabel `Content_Genre`):
+### Proses Transformasi `content_genre`
+
+Langkah:
+
+```python
+Select show_id & listed_in
+→ Split by delimiter ","
+→ Expand to rows
+→ Trim whitespace
+→ Replace "and Culture" → "Culture"
+```
+
+Contoh sebelum normalisasi:
+
+| show_id | listed_in              |
+| ------- | ---------------------- |
+| s1      | Drama, Comedy, Romance |
+
+Setelah normalisasi:
+
 | show_id | genre   |
-|---------|---------|
+| ------- | ------- |
 | s1      | Drama   |
 | s1      | Comedy  |
 | s1      | Romance |
 
-Relasi antar tabel:
-`amazon_prime_titles[show_id]  1 ──── *  content_genre[show_id]`
+Relasi tabel:
+
+```python
+amazon_prime_titles[show_id]
+        1 ──────── *
+content_genre[show_id]
+```
+
+Tujuan:
+
+Memungkinkan analisis genre yang lebih akurat tanpa multi-value cell.
 
 ---
 
-## 📊 Final Dataset
+## 📊 Dashboard Preview
 
-### Tabel 1: `amazon_prime_titles`
+### Content Performance Overview
 
-| Kolom               | Keterangan                    |
-|---------------------|-------------------------------|
-| show_id             | ID unik konten                |
-| type                | Movie / TV Show               |
-| title               | Judul konten                  |
-| release_year        | Tahun rilis                   |
-| rating              | Rating standar                |
-| age_category        | Kids / Teen / Adult / Unknown |
-| duration_value      | Nilai numerik durasi          |
-| duration_unit       | Minute / Season               |
-| Movie_Duration_Mins | Durasi film dalam menit       |
-| TV_Season_Count     | Jumlah season TV Show         |
-| Decade              | Dekade rilis (misal: 2010s)   |
+Menampilkan:
 
-### Tabel 2: `content_genre`
-| Kolom   | Keterangan                     |
-|---------|--------------------------------|
-| show_id | ID unik (FK ke tabel utama)    |
-| genre   | Nama genre (1 baris per genre) |
+KPI utama total konten
+Total Movie dan TV Show
+Average movie duration
+Tren jumlah konten berdasarkan dekade rilis
+Top 10 genre
+Distribusi tipe konten (Movie vs TV Show)
+Distribusi kategori rating
+Distribusi kategori usia audiens
+Distribusi durasi film
+Interactive slicer:
 
 ---
 
-## 📈 Key Insights
+## 💡 Key Insights
 
-- **9.547 total konten** — 81% Movie, 19% TV Show
-- **Drama** adalah genre terbesar dengan 3.672 konten
-- **Lonjakan konten signifikan** terjadi di era 2010s (4.293 konten)
-- **Rata-rata durasi film** 91 menit
-- **Segmen Teen** mendominasi audiens dengan 4.669 konten
-- **127 konten** tidak memiliki rating yang teridentifikasi (Unknown)
-
----
-
-## Dashboard Preview
-
-<img width="1030" height="592" alt="image" src="https://github.com/user-attachments/assets/1e5f9b81-1839-4c9d-bc9a-1dce78c1f112" />
+* **9.547 total konten** berhasil dianalisis
+* **Movie** mendominasi katalog dengan proporsi **81%**
+* **Drama** menjadi genre terbesar dengan **3.672 konten**
+* Lonjakan pertumbuhan konten tertinggi terjadi pada era **2010s**
+* **Teen** merupakan kategori audiens terbesar dengan **4.669 konten**
+* Rata-rata durasi film adalah **91 menit**
+* Terdapat **127 konten** dengan rating tidak teridentifikasi (`Unknown`)
 
 ---
 
-## 🎓 About This Project
+## 🚀 How to Use
 
-Proyek ini merupakan bagian dari **RevoU Mini Course – Data Analytics**.  
-Tujuan utama adalah mempraktikkan end-to-end data analysis workflow:  
-**Data Cleaning → EDA → Visualization → Storytelling**
+### 1. Download Dataset
+
+Download file:
+
+```bash
+amazon_prime_cleaned.xlsx
+```
 
 ---
 
-*Dataset source: Amazon Prime Video catalog (public dataset)*
+### 2. Open in Excel
+
+Gunakan:
+
+**Microsoft Excel 2016+**
+
+---
+
+### 3. Refresh Power Query
+
+Buka:
+
+**Data → Refresh All**
+
+Untuk memuat ulang seluruh transformasi data.
+
+---
+
+### 4. Explore Dashboard
+
+Buka dashboard utama melalui file:
+
+```bash
+dashboard_preview.png
+```
+
+atau workbook dashboard Excel.
+
+---
+
+## Author
+
+**Agnes Kamelia Narjun**
+
+📧 [agneskameliaa@gmail.com]
+🔗 [LinkedIn Profile]
